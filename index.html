@@ -1,0 +1,1126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChequeGenerator Pro - Utkal Enterprise Suite</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        .font-handwriting { font-family: 'Dancing Script', cursive; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* Animation Utilities */
+        .fade-in { animation: fadeIn 0.3s ease-in-out; }
+        .slide-up { animation: slideUp 0.4s ease-out; }
+        
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 h-screen flex flex-col overflow-hidden">
+
+    <!-- APP HEADER -->
+    <header class="bg-slate-900 text-white px-6 py-3 shadow-md border-b border-slate-700 flex justify-between items-center z-20 shrink-0">
+        <div class="flex items-center gap-3">
+            <div class="bg-blue-600 text-white p-2 rounded-lg shadow-lg shadow-blue-500/50">
+                <i data-lucide="zap" class="w-6 h-6"></i>
+            </div>
+            <div>
+                <h1 class="text-xl font-bold leading-tight" id="app-title">ChequeGenerator Pro</h1>
+                <p class="text-[10px] text-slate-400 uppercase tracking-widest" id="app-subtitle">Enterprise Automation Edition</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-6">
+            <div class="hidden md:flex items-center gap-2 bg-slate-800 px-3 py-1 rounded text-xs text-green-400 border border-slate-700">
+                <i data-lucide="shield-check" class="w-3.5 h-3.5"></i> <span>21AAACU3799H1Z8</span>
+            </div>
+            <div class="relative group">
+                <button class="flex items-center gap-2 bg-slate-800 px-3 py-1.5 rounded-full text-sm font-medium hover:bg-slate-700 transition-colors border border-slate-700" onclick="toggleLangMenu()">
+                    <i data-lucide="globe" class="w-4 h-4"></i> <span id="current-lang-label">🇬🇧 English</span>
+                </button>
+                <div id="lang-menu" class="absolute right-0 top-full mt-2 w-40 bg-white text-slate-900 shadow-xl rounded-xl p-2 hidden border border-slate-100 z-50">
+                    <button onclick="setLang('en')" class="w-full text-left px-4 py-2 hover:bg-blue-50 rounded-lg text-sm flex gap-2">🇬🇧 English</button>
+                    <button onclick="setLang('hi')" class="w-full text-left px-4 py-2 hover:bg-blue-50 rounded-lg text-sm flex gap-2">🇮🇳 हिंदी</button>
+                    <button onclick="setLang('bn')" class="w-full text-left px-4 py-2 hover:bg-blue-50 rounded-lg text-sm flex gap-2">🇮🇳 বাংলা</button>
+                    <button onclick="setLang('or')" class="w-full text-left px-4 py-2 hover:bg-blue-50 rounded-lg text-sm flex gap-2">🇮🇳 ଓଡ଼ିଆ</button>
+                </div>
+            </div>
+            <div class="text-right hidden md:block">
+                <p class="text-xs font-bold text-white">T. N. Singh</p>
+                <p class="text-[10px] text-slate-400">Accountant</p>
+            </div>
+        </div>
+    </header>
+
+    <div class="flex flex-1 overflow-hidden">
+        <!-- SIDEBAR -->
+        <aside class="w-64 bg-white border-r border-slate-200 flex flex-col p-4 gap-2 shadow-sm z-10 shrink-0 overflow-y-auto">
+            <div class="mb-2 px-2 text-xs font-bold text-slate-400 uppercase tracking-wider">Production</div>
+            <button onclick="setTab('dashboard')" id="nav-dashboard" class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium hover:bg-slate-50 text-slate-600">
+                <i data-lucide="layout-dashboard" class="w-5 h-5"></i> <span data-t="dashboard">Dashboard</span>
+            </button>
+            <button onclick="setTab('bulk')" id="nav-bulk" class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium hover:bg-slate-50 text-slate-600">
+                <i data-lucide="layers" class="w-5 h-5"></i> <span data-t="bulkGen">Bulk Builder</span>
+            </button>
+            <button onclick="setTab('cheque')" id="nav-cheque" class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium hover:bg-slate-50 text-slate-600">
+                <i data-lucide="zap" class="w-5 h-5"></i> <span data-t="chequeGen">Quick Cheque</span>
+            </button>
+            
+            <div class="my-2 border-t border-slate-100"></div>
+            <div class="mb-2 px-2 text-xs font-bold text-slate-400 uppercase tracking-wider">Records</div>
+            
+            <button onclick="setTab('register')" id="nav-register" class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium hover:bg-slate-50 text-slate-600">
+                <i data-lucide="list" class="w-5 h-5"></i> <span data-t="register">Audit Register</span>
+            </button>
+            <button onclick="setTab('party')" id="nav-party" class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium hover:bg-slate-50 text-slate-600">
+                <i data-lucide="users" class="w-5 h-5"></i> <span data-t="partyMaster">Vendor Master</span>
+            </button>
+            <button onclick="setTab('advice')" id="nav-advice" class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium hover:bg-slate-50 text-slate-600">
+                <i data-lucide="file-text" class="w-5 h-5"></i> <span data-t="payAdvice">Payment Advice</span>
+            </button>
+
+            <div class="my-2 border-t border-slate-100"></div>
+            <div class="mb-2 px-2 text-xs font-bold text-slate-400 uppercase tracking-wider">System</div>
+
+            <button onclick="setTab('workflow')" id="nav-workflow" class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium hover:bg-slate-50 text-slate-600">
+                <i data-lucide="info" class="w-5 h-5"></i> <span data-t="workflow">My Workflow</span>
+            </button>
+            <button onclick="setTab('system')" id="nav-system" class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium hover:bg-slate-50 text-slate-600">
+                <i data-lucide="shield-check" class="w-5 h-5"></i> <span data-t="systemInfo">System Security</span>
+            </button>
+            
+            <div class="mt-auto">
+                <button onclick="setTab('plans')" class="w-full bg-gradient-to-r from-yellow-500 to-yellow-600 text-slate-900 font-bold py-2 rounded-lg shadow mb-2 text-sm">
+                    <span data-t="plans">License Plans</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT AREA -->
+        <main id="main-content" class="flex-1 bg-slate-50 p-8 overflow-hidden relative overflow-y-auto">
+            <!-- Content injected via JS -->
+        </main>
+    </div>
+
+    <!-- Onboarding Modal -->
+    <div id="onboarding-modal" class="fixed inset-0 bg-slate-900/90 z-50 flex items-center justify-center p-4 hidden fade-in">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-8 text-center border-t-8 border-blue-600 slide-up">
+            <div id="ob-icon-container" class="flex justify-center mb-6 bg-slate-50 p-6 rounded-full w-32 h-32 mx-auto items-center text-blue-600">
+                <!-- Icon -->
+            </div>
+            <h2 id="ob-title" class="text-2xl font-bold text-slate-800 mb-2"></h2>
+            <p id="ob-desc" class="text-slate-600 mb-8 text-lg"></p>
+            
+            <div class="flex justify-between">
+                <button onclick="prevStep()" id="ob-prev" class="text-slate-500 font-bold hidden">Back</button>
+                <button onclick="nextStep()" id="ob-next" class="bg-blue-600 text-white px-6 py-2 rounded-full font-bold flex items-center gap-2 hover:bg-blue-700 ml-auto">
+                    Next <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA & STATE ---
+        const LANGUAGES = {
+            en: { label: "English", flag: "🇬🇧" },
+            hi: { label: "हिंदी", flag: "🇮🇳" },
+            bn: { label: "বাংলা", flag: "🇮🇳" },
+            or: { label: "ଓଡ଼ିଆ", flag: "🇮🇳" }
+        };
+
+        const TRANSLATIONS = {
+            en: {
+                appTitle: "ChequeGenerator Pro",
+                subtitle: "Enterprise Automation Edition for Utkal Polyweave Industries Pvt. Ltd.",
+                welcome: "Welcome back, T. N. Singh",
+                dashboard: "Command Center",
+                bulkGen: "Bulk Builder (Main)",
+                chequeGen: "Quick Cheque",
+                payAdvice: "Payment Advice",
+                partyMaster: "Vendor Master",
+                register: "Audit Register",
+                plans: "License Plans",
+                workflow: "My Workflow",
+                systemInfo: "System Security",
+                
+                bank_header: "SELECT BANK ACCOUNT",
+                ac_payee: "A/C PAYEE ONLY",
+                cheque_header: "Cheque Generator — State Bank of India",
+                date_format: "Date (DDMMYYYY)",
+                advice_header: "Payment Advice",
+                advice_payee: "PAYEE NAME:",
+                advice_refs: "BILL REFERENCES:",
+                vendor_select: "Select Vendor (e.g., Ganpati Plastic)",
+                vendor_bal: "Vendor Balance: ₹0/-",
+                reg_header: "Cheque Register",
+                reg_amount: "AMOUNT (₹)",
+                auth_sig: "AUTHORISED SIGNATORY",
+
+                tip_bank: "System will auto-fill cheque settings based on the bank.",
+                tip_party: "No need to type details again. System remembers vendor details.",
+                tip_cheque: "Just enter the amount. Everything else is automatic.",
+                tip_advice: "All fields copied from the cheque. No retyping needed.",
+                tip_register: "Every cheque you generate is saved here automatically.",
+                
+                step_input: "1. Input Invoices",
+                step_review: "2. Auto-Group",
+                step_print: "3. Bulk Print",
+                upload_csv: "Upload CSV",
+                auto_group: "Auto-Grouping Active",
+                
+                ob1_title: "Utkal Polyweave Enterprise Suite",
+                ob1_desc: "Your all-in-one automation for Cheques, Advices, and Bulk Payments.",
+                ob2_title: "Bulk Automation Engine",
+                ob2_desc: "Upload one Excel sheet -> Generate 300 Cheques instantly.",
+                ob3_title: "Quick Cheque Mode",
+                ob3_desc: "Zero-typing tool for urgent single payments.",
+                ob4_title: "Smart Memory",
+                ob4_desc: "System remembers every vendor, bank, and bill pattern.",
+                start: "Start System",
+                prev: "Back",
+                next: "Next",
+
+                generate_link: "Generate Cheque + Advice",
+                approve_save: "Approve & Save",
+                generate_all: "Generate All Cheques",
+                amount_words: "Amount in Words",
+                manual_entry: "Manual Entry",
+                download_all: "Download All PDFs",
+                add_vendor: "Add Vendor",
+                bank_details: "Bank Details",
+                auto_ledger: "Auto-Ledger",
+                
+                // System & Plans
+                sys_offline: "100% Offline System",
+                sys_secure: "Local Encrypted Data",
+                sys_desc: "No data leaves this computer. Safe for manufacturing accounts.",
+                
+                free: "Basic Demo",
+                std: "Standard License",
+                ent: "Enterprise Automation",
+                price_ent: "₹48,000",
+                ent_feat: "Bulk Upload + Memory Engine",
+                buy: "Upgrade Now",
+                current: "Active",
+                
+                memory_active: "Memory Engine Active",
+                memory_msg: "System remembered your last settings.",
+                last_chq: "Last Cheque Used"
+            },
+            hi: {
+                appTitle: "चेक जनरेटर प्रो",
+                subtitle: "उत्कल पॉलीविव इंडस्ट्रीज के लिए एंटरप्राइज ऑटोमेशन संस्करण",
+                welcome: "स्वागत है, टी. एन. सिंह",
+                dashboard: "कमांड सेंटर",
+                bulkGen: "बल्क बिल्डर (मुख्य)",
+                chequeGen: "क्विक चेक",
+                payAdvice: "पेमेंट एडवाइस",
+                partyMaster: "वेंडर मास्टर",
+                register: "ऑडिट रजिस्टर",
+                plans: "लाइसेंस प्लान",
+                workflow: "कार्य प्रक्रिया",
+                systemInfo: "सिस्टम सुरक्षा",
+                
+                bank_header: "बैंक खाता चुनें",
+                ac_payee: "केवल A/C Payee",
+                cheque_header: "चेक जनरेटर — स्टेट बैंक ऑफ इंडिया",
+                date_format: "तारीख (DDMMYYYY)",
+                advice_header: "पेमेंट एडवाइस",
+                advice_payee: "पाने वाले का नाम:",
+                advice_refs: "बिल संदर्भ:",
+                vendor_select: "वेंडर चुनें (जैसे गणपति प्लास्टिक)",
+                vendor_bal: "वेंडर बैलेंस: ₹0/-",
+                reg_header: "चेक रजिस्टर",
+                reg_amount: "राशि (₹)",
+                auth_sig: "अधिकृत हस्ताक्षरकर्ता",
+
+                tip_bank: "सिस्टम बैंक के आधार पर चेक सेटिंग्स अपने आप भर देगा।",
+                tip_party: "विवरण दोबारा टाइप करने की आवश्यकता नहीं है। सिस्टम वेंडर विवरण याद रखता है।",
+                tip_cheque: "बस राशि दर्ज करें। बाकी सब कुछ स्वचालित है।",
+                tip_advice: "सभी फ़ील्ड चेक से कॉपी किए गए हैं। दोबारा टाइप करने की आवश्यकता नहीं है।",
+                tip_register: "आपके द्वारा बनाया गया हर चेक यहां अपने आप सहेज लिया जाता है।",
+
+                step_input: "1. चालान डालें",
+                step_review: "2. ऑटो-ग्रुप",
+                step_print: "3. एक साथ प्रिंट",
+                upload_csv: "CSV अपलोड करें",
+                auto_group: "ऑटो-ग्रुपिंग सक्रिय",
+
+                ob1_title: "उत्कल पॉलीविव एंटरप्राइज सुइट",
+                ob1_desc: "चेक, एडवाइस और बल्क पेमेंट के लिए आपका ऑल-इन-वन ऑटोमेशन।",
+                ob2_title: "बल्क ऑटोमेशन इंजन",
+                ob2_desc: "एक एक्सेल शीट अपलोड करें -> तुरंत 300 चेक बनाएं।",
+                ob3_title: "क्विक चेक मोड",
+                ob3_desc: "तत्काल एकल भुगतान के लिए जीरो-टाइपिंग टूल।",
+                ob4_title: "स्मार्ट मेमोरी",
+                ob4_desc: "सिस्टम हर वेंडर, बैंक और बिल पैटर्न को याद रखता है।",
+                start: "सिस्टम शुरू करें",
+                prev: "पीछे",
+                next: "अगला",
+
+                generate_link: "चेक + एडवाइस बनाएं",
+                approve_save: "मंजूर करें और सहेजें",
+                generate_all: "सभी चेक बनाएं",
+                amount_words: "शब्दों में राशि",
+                manual_entry: "मैनुअल एंट्री",
+                download_all: "सभी PDF डाउनलोड करें",
+                add_vendor: "वेंडर जोड़ें",
+                bank_details: "बैंक विवरण",
+                auto_ledger: "ऑटो-लेखा",
+                
+                sys_offline: "100% ऑफलाइन सिस्टम",
+                sys_secure: "लोकल सुरक्षित डेटा",
+                sys_desc: "कोई डेटा इस कंप्यूटर से बाहर नहीं जाता।",
+                
+                free: "बेसिक डेमो",
+                std: "स्टैण्डर्ड",
+                ent: "एंटरप्राइज़ ऑटोमेशन",
+                price_ent: "₹48,000",
+                ent_feat: "बल्क अपलोड + मेमोरी इंजन",
+                buy: "अभी खरीदें",
+                current: "सक्रिय",
+                
+                memory_active: "मेमोरी इंजन सक्रिय",
+                memory_msg: "सिस्टम ने आपकी पिछली सेटिंग्स याद रखी हैं।",
+                last_chq: "पिछला चेक नंबर"
+            },
+            // Fallback for others to avoid file bloat, in real app fill these
+            bn: { 
+               appTitle: "চেক জেনারেটর প্রো",
+               welcome: "স্বাগতম, টি. এন. সিং",
+               bulkGen: "বাল্ক বিল্ডার (প্রধান)",
+               chequeGen: "কুইক চেক",
+               payAdvice: "পেমেন্ট অ্যাডভাইস",
+               partyMaster: "ভেন্ডর মাস্টার",
+               register: "অডিট রেজিস্টার",
+               bank_header: "ব্যাংক অ্যাকাউন্ট নির্বাচন করুন",
+               ac_payee: "শুধুমাত্র A/C Payee",
+               cheque_header: "চেক জেনারেটর — স্টেট ব্যাংক অফ ইন্ডিয়া",
+               amount_words: "কথায়",
+               start: "শুরু করুন",
+               prev: "পেছনে",
+               next: "পরবর্তী",
+               ob1_title: "উৎকল পলিওয়েভ এন্টারপ্রাইজ স্যুট",
+               ob1_desc: "আপনার সমস্ত পেমেন্ট অটোমেশনের জন্য।",
+               step_input: "১. ইনভয়েস দিন",
+               step_review: "২. অটো-গ্রুপ",
+               step_print: "৩. বাল্ক প্রিন্ট",
+               upload_csv: "CSV আপলোড",
+               auto_group: "অটো-গ্রুপিং চালু",
+               generate_all: "সব চেক তৈরি করুন",
+               add_vendor: "ভেন্ডর যোগ করুন",
+               bank_details: "ব্যাংক বিবরণ",
+               auto_ledger: "অটো-লেজার",
+               vendor_select: "ভেন্ডর নির্বাচন করুন",
+               reg_amount: "টাকার পরিমাণ (₹)",
+               tip_register: "আপনার তৈরি প্রতিটি চেক এখানে স্বয়ংক্রিয়ভাবে সেভ হয়।",
+               reg_header: "চেক রেজিস্টার",
+               plans: "লাইসেন্স প্ল্যান",
+               workflow: "কাজের ধাপ",
+               systemInfo: "নিরাপত্তা"
+            },
+            or: {
+               appTitle: "ଚେକ୍ ଜେନେରେଟର ପ୍ରୋ",
+               welcome: "ସ୍ୱାଗତ, ଟି. ଏନ୍. ସିଂହ",
+               bulkGen: "ବଲ୍କ ବିଲଡର (ମୁଖ୍ୟ)",
+               chequeGen: "କ୍ୱିକ୍ ଚେକ୍",
+               payAdvice: "ପେମେଣ୍ଟ ଆଡଭାଇସ୍",
+               partyMaster: "ଭେଣ୍ଡର ମାଷ୍ଟର",
+               register: "ଅଡିଟ୍ ରେଜିଷ୍ଟର",
+               bank_header: "ବ୍ୟାଙ୍କ ଆକାଉଣ୍ଟ ବାଛନ୍ତୁ",
+               ac_payee: "କେବଳ A/C Payee",
+               cheque_header: "ଚେକ୍ ଜେନେରେଟର — ଷ୍ଟେଟ୍ ବ୍ୟାଙ୍କ ଅଫ୍ ଇଣ୍ଡିଆ",
+               amount_words: "ଶବ୍ଦରେ",
+               start: "ଆରମ୍ଭ କରନ୍ତୁ",
+               prev: "ପଛକୁ",
+               next: "ପରବର୍ତ୍ତୀ",
+               ob1_title: "ଉତ୍କଳ ପଲିୱେଭ୍ ଏଣ୍ଟରପ୍ରାଇଜ୍ ସୁଇଟ୍",
+               ob1_desc: "ଆପଣଙ୍କର ସମସ୍ତ ପେମେଣ୍ଟ ଅଟୋମେସନ୍ ପାଇଁ |",
+               step_input: "୧. ବିଲ୍ ଦିଅନ୍ତୁ",
+               step_review: "୨. ଅଟୋ-ଗ୍ରୁପ୍",
+               step_print: "୩. ବଲ୍କ ପ୍ରିଣ୍ଟ",
+               upload_csv: "CSV ଅପଲୋଡ୍",
+               auto_group: "ଅଟୋ-ଗ୍ରୁପିଙ୍ଗ୍ ସକ୍ରିୟ",
+               generate_all: "ସମସ୍ତ ଚେକ୍ ତିଆରି କରନ୍ତୁ",
+               add_vendor: "ଭେଣ୍ଡର ଯୋଡନ୍ତୁ",
+               bank_details: "ବ୍ୟାଙ୍କ ବିବରଣୀ",
+               auto_ledger: "ଅଟୋ-ଲେଜର",
+               vendor_select: "ଭେଣ୍ଡର ବାଛନ୍ତୁ",
+               reg_amount: "ରାଶି (ଟଙ୍କା)",
+               tip_register: "ଆପଣ ତିଆରି କରିଥିବା ପ୍ରତ୍ୟେକ ଚେକ୍ ଏଠାରେ ସ୍ୱୟଂଚାଳିତ ଭାବରେ ସେଭ୍ ହୁଏ |",
+               reg_header: "ଚେକ୍ ରେଜିଷ୍ଟର",
+               plans: "ଲାଇସେନ୍ସ ପ୍ଲାନ",
+               workflow: "କାର୍ଯ୍ୟ ପ୍ରଣାଳୀ",
+               systemInfo: "ସିଷ୍ଟମ୍ ସୁରକ୍ଷା"
+            }
+        };
+
+        const VENDOR_MEMORY = [
+            { id: 1, name: "Ganpati Plastic", bank: "HDFC Bank", acc: "50200045112233", ifsc: "HDFC0001234", ledger: "Raw Material - Granules", purpose: "Granules Supply Bill" },
+            { id: 2, name: "Vakrangee Packaging LLP", bank: "SBI", acc: "305600223344", ifsc: "SBIN0002233", ledger: "Packing Material", purpose: "Packaging Material Inv" },
+            { id: 3, name: "Prem Packaging", bank: "Axis Bank", acc: "91501002233", ifsc: "UTIB0001122", ledger: "PP Fabric Purchase", purpose: "Fabric Roll Supply" },
+            { id: 4, name: "S.S. Polymers", bank: "ICICI Bank", acc: "000405009988", ifsc: "ICIC0000004", ledger: "Masterbatch Supply", purpose: "Masterbatch Purchase" }
+        ];
+
+        const BANK_MEMORY = {
+            SBI: { lastCheque: 45102, label: "STATE BANK OF INDIA", color: "#e3f2fd", acPayeeDefault: true },
+            HDFC: { lastCheque: 100234, label: "HDFC BANK", color: "#e0f2f1", acPayeeDefault: true },
+            ICICI: { lastCheque: 88901, label: "ICICI BANK", color: "#fff3e0", acPayeeDefault: true },
+            Axis: { lastCheque: 22011, label: "AXIS BANK", color: "#f3e5f5", acPayeeDefault: true },
+            PNB: { lastCheque: 55601, label: "PUNJAB NATIONAL BANK", color: "#ffebee", acPayeeDefault: true }
+        };
+
+        let STATE = {
+            lang: 'en',
+            activeTab: 'bulk',
+            vendors: VENDOR_MEMORY,
+            registerData: [
+                { id: 45100, date: "2025-10-01", party: "Ganpati Plastic", amount: 120000, bank: "SBI", status: "Cleared", notes: "Inv #GP/24-25/104" },
+                { id: 45101, date: "2025-10-02", party: "Prem Packaging", amount: 45000, bank: "SBI", status: "Issued", notes: "Oct Supply" }
+            ],
+            // Quick Cheque State
+            qc: {
+                bank: 'SBI',
+                partyId: '',
+                amount: '',
+                date: new Date().toISOString().split('T')[0],
+                generated: false
+            },
+            // Bulk State
+            bulk: {
+                step: 1,
+                invoices: [
+                    { id: 1, vendorId: 1, invNo: "GP/001", amount: 125000, date: "2025-10-01" },
+                    { id: 2, vendorId: 1, invNo: "GP/004", amount: 50000, date: "2025-10-02" },
+                    { id: 3, vendorId: 2, invNo: "VAK/992", amount: 210000, date: "2025-10-05" },
+                    { id: 4, vendorId: 3, invNo: "PREM/88", amount: 45000, date: "2025-10-06" }
+                ]
+            }
+        };
+
+        // --- UTILS ---
+        function t(key) {
+            const lang = STATE.lang;
+            return TRANSLATIONS[lang]?.[key] || TRANSLATIONS['en'][key] || key;
+        }
+
+        function numToWords(num) {
+            if (!num || num === 0) return "";
+            const a = ['','One ','Two ','Three ','Four ','Five ','Six ','Seven ','Eight ','Nine ','Ten ','Eleven ','Twelve ','Thirteen ','Fourteen ','Fifteen ','Sixteen ','Seventeen ','Eighteen ','Nineteen '];
+            const b = ['', '', 'Twenty','Thirty','Forty','Fifty','Sixty','Seventy','Eighty','Ninety'];
+            const convert = (n) => {
+                if (n < 20) return a[n];
+                if (n < 100) return b[Math.floor(n/10)] + (n%10? ' ' + a[n%10] : '');
+                if (n < 1000) return a[Math.floor(n/100)] + 'Hundred ' + convert(n%100);
+                if (n < 100000) return convert(Math.floor(n/1000)) + 'Thousand ' + convert(n%1000);
+                if (n < 10000000) return convert(Math.floor(n/100000)) + 'Lakh ' + convert(n%100000);
+                return convert(Math.floor(n/10000000)) + 'Crore ' + convert(n%10000000);
+            }
+            return convert(Number(num)) + " Only";
+        }
+
+        // --- DOM MANIPULATION ---
+        function renderApp() {
+            // Update Headers
+            document.getElementById('app-subtitle').innerText = t('subtitle');
+            
+            // Update Sidebar Active State
+            document.querySelectorAll('aside button').forEach(btn => {
+                const span = btn.querySelector('span');
+                if(span) {
+                    const idKey = span.getAttribute('data-t');
+                    // Translate label
+                    const label = t(idKey);
+                    span.innerText = label;
+                }
+
+                const isActive = btn.id === `nav-${STATE.activeTab}`;
+                btn.className = `flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium ${isActive ? 'bg-blue-50 text-blue-700 border border-blue-200 shadow-sm' : 'hover:bg-slate-50 text-slate-600'}`;
+            });
+
+            // Render Content Area
+            const main = document.getElementById('main-content');
+            main.innerHTML = ''; // Clear
+
+            // RENDER MEMORY WIDGET (Top)
+            renderMemoryWidget(main);
+
+            switch(STATE.activeTab) {
+                case 'dashboard': renderDashboard(main); break;
+                case 'bulk': renderBulk(main); break;
+                case 'cheque': renderCheque(main); break;
+                case 'register': renderRegister(main); break;
+                case 'party': renderParty(main); break;
+                case 'advice': renderBulkAdvice(main); break;
+                case 'workflow': renderWorkflow(main); break;
+                case 'system': renderSystemInfo(main); break;
+                case 'plans': renderPlans(main); break;
+                default: renderDashboard(main);
+            }
+            
+            // Re-init Icons
+            lucide.createIcons();
+        }
+
+        function setTab(tab) {
+            STATE.activeTab = tab;
+            renderApp();
+        }
+
+        function setLang(l) {
+            STATE.lang = l;
+            document.getElementById('current-lang-label').innerText = LANGUAGES[l].label;
+            document.getElementById('lang-menu').classList.add('hidden');
+            renderApp();
+        }
+
+        function toggleLangMenu() {
+            document.getElementById('lang-menu').classList.toggle('hidden');
+        }
+
+        // --- MODULE RENDERING ---
+
+        function renderMemoryWidget(container) {
+            const widget = document.createElement('div');
+            widget.className = "bg-slate-800 text-white p-4 rounded-lg shadow-lg flex items-center justify-between mb-6 animate-in fade-in slide-in-from-top-4";
+            widget.innerHTML = `
+                <div class="flex items-center gap-3">
+                    <div class="bg-green-500 p-2 rounded-full animate-pulse">
+                        <i data-lucide="brain" class="w-6 h-6 text-white"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-sm uppercase tracking-wide text-green-400">${t('memory_active')}</h3>
+                        <p class="text-xs text-slate-300">${t('memory_msg')}</p>
+                    </div>
+                </div>
+                <div class="flex gap-4 text-right">
+                    <div>
+                        <p class="text-[10px] uppercase text-slate-400">SBI ${t('last_chq')}</p>
+                        <p class="font-mono font-bold text-lg">00${BANK_MEMORY.SBI.lastCheque}</p>
+                    </div>
+                    <div class="border-l border-slate-600 pl-4">
+                        <p class="text-[10px] uppercase text-slate-400">HDFC ${t('last_chq')}</p>
+                        <p class="font-mono font-bold text-lg">${BANK_MEMORY.HDFC.lastCheque}</p>
+                    </div>
+                </div>
+            `;
+            container.appendChild(widget);
+        }
+
+        function renderDashboard(container) {
+            const cards = [
+                { icon: 'layers', color: 'purple', title: t('bulkGen'), desc: 'Upload CSV or add multiple invoices.', action: 'bulk', badge: 'RECOMMENDED' },
+                { icon: 'zap', color: 'blue', title: t('chequeGen'), desc: 'Single cheque with zero-typing automation.', action: 'cheque' },
+                { icon: 'users', color: 'slate', title: t('partyMaster'), desc: '4 Active Vendors • HDFC, SBI Linked.', action: 'party' },
+                { icon: 'file-text', color: 'orange', title: t('payAdvice'), desc: 'Auto-generate letters for 4 pending batches.', action: 'advice' }
+            ];
+
+            const grid = document.createElement('div');
+            grid.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 fade-in';
+            
+            cards.forEach(c => {
+                const div = document.createElement('div');
+                div.className = `bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow cursor-pointer group`;
+                div.onclick = () => setTab(c.action);
+                div.innerHTML = `
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="bg-${c.color}-100 p-3 rounded-xl text-${c.color}-600 group-hover:bg-${c.color}-600 group-hover:text-white transition-colors">
+                            <i data-lucide="${c.icon}" class="w-6 h-6"></i>
+                        </div>
+                        ${c.badge ? `<span class="bg-green-100 text-green-700 text-[10px] font-bold px-2 py-1 rounded-full">${c.badge}</span>` : ''}
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-800">${c.title}</h3>
+                    <p class="text-sm text-slate-500 mt-1">${c.desc}</p>
+                `;
+                grid.appendChild(div);
+            });
+            container.appendChild(grid);
+        }
+
+        function renderCheque(container) {
+            const bankDetails = BANK_MEMORY[STATE.qc.bank];
+            const party = STATE.vendors.find(v => v.id == STATE.qc.partyId);
+            const chequeNo = bankDetails.lastCheque + 1;
+            const amountWords = numToWords(STATE.qc.amount);
+
+            // Container for split view
+            const wrapper = document.createElement('div');
+            wrapper.className = "flex flex-col xl:flex-row gap-6 h-full";
+
+            // LEFT: FORM
+            const left = document.createElement('div');
+            left.className = "w-full xl:w-1/3 flex flex-col gap-4 overflow-y-auto";
+            
+            // Bank Selection
+            const bankCard = document.createElement('div');
+            bankCard.className = "bg-white p-6 rounded-xl shadow-sm border border-slate-200";
+            let bankBtns = '';
+            Object.keys(BANK_MEMORY).forEach(k => {
+                bankBtns += `<button onclick="updateQC('bank', '${k}')" class="flex-1 py-2 px-2 rounded border-2 text-xs font-bold ${STATE.qc.bank === k ? 'border-blue-600 bg-blue-50 text-blue-700' : 'border-slate-100'}">${BANK_MEMORY[k].label.replace('BANK','').replace('OF INDIA','')}</button>`;
+            });
+            bankCard.innerHTML = `
+                <h3 class="text-xs font-bold text-slate-500 uppercase mb-3 flex items-center gap-2"><i data-lucide="brain" class="w-4 h-4 text-purple-500"></i> ${t('bank_header')}</h3>
+                <div class="flex gap-2 flex-wrap">${bankBtns}</div>
+                <div class="mt-3 text-xs flex justify-between text-slate-500 font-medium">
+                    <span><i data-lucide="check-circle" class="w-3 h-3 inline"></i> ${t('ac_payee')}</span>
+                    <span class="bg-green-100 text-green-800 px-2 rounded">${t('tip_bank')}</span>
+                </div>
+            `;
+            left.appendChild(bankCard);
+
+            // Input Form
+            const formCard = document.createElement('div');
+            formCard.className = "bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex-1";
+            formCard.innerHTML = `
+                <div class="mb-4 border-b border-slate-100 pb-2 flex justify-between">
+                    <h3 class="font-bold text-slate-800">${t('chequeGen')}</h3>
+                    <span class="text-xs font-mono text-slate-500">${STATE.qc.date}</span>
+                </div>
+                <div class="space-y-4">
+                    <div>
+                        <label class="text-xs font-bold text-slate-500 block mb-1">${t('vendor_select')}</label>
+                        <select onchange="updateQC('partyId', this.value)" class="w-full p-3 border rounded-lg bg-slate-50 font-medium">
+                            <option value="">-- Select --</option>
+                            ${STATE.vendors.map(v => `<option value="${v.id}" ${STATE.qc.partyId == v.id ? 'selected' : ''}>${v.name}</option>`).join('')}
+                        </select>
+                        <p class="text-[10px] text-blue-600 mt-1">${t('tip_party')}</p>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="text-xs font-bold text-slate-500 block mb-1">${t('reg_amount')}</label>
+                            <input type="number" value="${STATE.qc.amount}" oninput="updateQC('amount', this.value)" class="w-full p-3 border rounded-lg font-mono text-lg font-bold text-right">
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold text-slate-500 block mb-1">Cheque No</label>
+                            <input type="text" value="${chequeNo}" readonly class="w-full p-3 border rounded-lg font-mono text-slate-500 bg-slate-100">
+                        </div>
+                    </div>
+                    <div class="bg-slate-50 p-3 rounded border border-slate-100">
+                        <span class="text-xs font-bold text-slate-400 block mb-1">${t('amount_words')}</span>
+                        <p class="text-sm font-medium italic text-slate-700">${amountWords || "..."}</p>
+                    </div>
+                    <button onclick="generateQC()" class="w-full bg-blue-700 hover:bg-blue-800 text-white py-4 rounded-xl font-bold shadow-lg flex items-center justify-center gap-2">
+                        <i data-lucide="zap" class="w-4 h-4"></i> ${t('generate_link')}
+                    </button>
+                </div>
+            `;
+            left.appendChild(formCard);
+            wrapper.appendChild(left);
+
+            // RIGHT: PREVIEW
+            const right = document.createElement('div');
+            right.className = "flex-1 flex flex-col gap-6";
+            
+            // Cheque Visual
+            const chequeDiv = document.createElement('div');
+            chequeDiv.className = "bg-slate-100 p-8 rounded-xl border border-slate-200 flex items-center justify-center relative overflow-hidden";
+            chequeDiv.innerHTML = `
+                <div class="absolute top-2 left-4 text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                   <i data-lucide="eye" class="w-3 h-3"></i> Live Print Preview
+                </div>
+                <div class="bg-white w-full max-w-[650px] aspect-[2.5/1] shadow-xl relative transition-all duration-300"
+                     style="background-image: repeating-linear-gradient(45deg, ${bankDetails.color} 0, ${bankDetails.color} 2px, white 0, white 10px); border-left: 8px solid #cbd5e1;">
+                    <div class="absolute top-4 left-6 font-bold text-xl opacity-70 text-slate-700 tracking-wide uppercase">${bankDetails.label}</div>
+                    <div class="absolute top-4 right-6 border-b border-slate-400 pb-1 font-mono text-lg tracking-[0.5em] text-slate-800">
+                        ${STATE.qc.date.split('-').reverse().join('')}
+                    </div>
+                    <div class="absolute top-16 left-6 w-3/4">
+                        <span class="text-[10px] text-slate-400 uppercase block mb-1">Pay</span>
+                        <div class="border-b border-dashed border-slate-400 pb-1 pl-2 font-bold text-lg font-handwriting uppercase text-slate-800">
+                            ${party ? party.name : "------------------"}
+                        </div>
+                    </div>
+                    <div class="absolute top-28 left-6 w-3/4">
+                        <span class="text-[10px] text-slate-400 uppercase block mb-1">Rupees</span>
+                        <div class="leading-6 text-sm font-medium italic text-slate-600 pl-2 pr-12">
+                             ${amountWords}
+                        </div>
+                    </div>
+                    <div class="absolute top-28 right-6 w-1/4">
+                         <div class="border-2 border-slate-800 bg-white/50 p-2 font-mono text-xl font-bold text-right text-slate-900 shadow-inner">
+                            ₹${STATE.qc.amount ? Number(STATE.qc.amount).toLocaleString('en-IN') : ""}
+                         </div>
+                    </div>
+                    <div class="absolute bottom-6 right-6 text-center">
+                        <div class="border-t border-slate-400 w-32 pt-1 text-[10px] text-slate-500 uppercase font-bold mt-8">Authorised Signatory</div>
+                    </div>
+                    <div class="absolute top-12 left-1/3 border-t-2 border-b-2 border-slate-800 -rotate-12 px-4 py-0.5 font-bold text-xs">
+                        A/C PAYEE ONLY
+                    </div>
+                    <div class="absolute bottom-2 left-0 w-full text-center font-mono text-xs tracking-widest text-slate-500 opacity-60">
+                        ${chequeNo} | 110002033 | 22
+                    </div>
+                </div>
+            `;
+            right.appendChild(chequeDiv);
+
+            // Payment Advice (If Generated)
+            if(STATE.qc.generated && party) {
+                const advice = document.createElement('div');
+                advice.className = "bg-slate-800 text-white p-6 rounded-xl shadow-lg relative overflow-hidden slide-up";
+                advice.innerHTML = `
+                    <div class="flex justify-between items-center mb-6 border-b border-slate-600 pb-2">
+                       <h3 class="font-bold text-lg">${t('advice_header')}</h3>
+                       <span class="bg-green-500 text-[10px] px-2 py-1 rounded font-bold text-slate-900">READY</span>
+                    </div>
+                    <div class="space-y-4 text-sm">
+                       <div class="flex justify-between">
+                          <span class="text-slate-400 font-bold">${t('advice_payee')}</span>
+                          <span class="font-mono text-lg font-bold">${party.name}</span>
+                       </div>
+                       <div class="flex justify-between">
+                          <span class="text-slate-400 font-bold">BANK:</span>
+                          <span>${party.bank} (${party.acc})</span>
+                       </div>
+                       <div class="flex justify-between">
+                          <span class="text-slate-400 font-bold">AMOUNT:</span>
+                          <span class="font-mono text-xl text-green-400">₹${Number(STATE.qc.amount).toLocaleString('en-IN')}/-</span>
+                       </div>
+                       <div class="bg-slate-700 p-3 rounded border border-slate-600">
+                          <span class="block text-slate-400 text-xs font-bold mb-1">${t('advice_refs')}</span>
+                          <p class="font-mono">${party.purpose} (Auto-Linked)</p>
+                       </div>
+                    </div>
+                    <div class="mt-6">
+                       <button onclick="saveToRegister()" class="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-bold shadow flex items-center justify-center gap-2">
+                         <i data-lucide="check-circle" class="w-4 h-4"></i> ${t('approve_save')}
+                       </button>
+                    </div>
+                `;
+                right.appendChild(advice);
+            }
+
+            wrapper.appendChild(right);
+            container.appendChild(wrapper);
+        }
+
+        // --- BULK MODULE ---
+        function renderBulk(container) {
+            const step = STATE.bulk.step;
+            
+            // Header
+            const header = document.createElement('div');
+            header.className = "flex justify-between items-center mb-6 bg-white p-4 rounded-xl shadow-sm border border-slate-200";
+            header.innerHTML = `
+                <div class="flex items-center gap-2 ${step===1 ? 'text-blue-600 font-bold' : 'text-slate-400'}">
+                    <div class="bg-slate-100 p-2 rounded-full"><i data-lucide="upload-cloud" class="w-4 h-4"></i></div> ${t('step_input')}
+                </div>
+                <i data-lucide="chevron-right" class="w-4 h-4 text-slate-300"></i>
+                <div class="flex items-center gap-2 ${step===2 ? 'text-blue-600 font-bold' : 'text-slate-400'}">
+                    <div class="bg-slate-100 p-2 rounded-full"><i data-lucide="layers" class="w-4 h-4"></i></div> ${t('step_review')}
+                </div>
+                <i data-lucide="chevron-right" class="w-4 h-4 text-slate-300"></i>
+                <div class="flex items-center gap-2 ${step===3 ? 'text-blue-600 font-bold' : 'text-slate-400'}">
+                    <div class="bg-slate-100 p-2 rounded-full"><i data-lucide="printer" class="w-4 h-4"></i></div> ${t('step_print')}
+                </div>
+            `;
+            container.appendChild(header);
+
+            if(step === 1) {
+                const content = document.createElement('div');
+                content.className = "flex-1 bg-white rounded-xl shadow p-8 text-center flex flex-col items-center justify-center border-2 border-dashed border-slate-300 hover:border-blue-400 transition-colors";
+                content.innerHTML = `
+                    <i data-lucide="file-spreadsheet" class="w-16 h-16 text-slate-300 mb-4"></i>
+                    <h2 class="text-2xl font-bold text-slate-700 mb-2">Drag & Drop Invoices CSV</h2>
+                    <p class="text-slate-500 mb-6 max-w-md">System will auto-read vendor names, amounts, and dates. We automatically group multiple bills from the same vendor.</p>
+                    <div class="flex gap-4">
+                        <button onclick="alert('Simulating CSV Upload...'); STATE.bulk.step=2; renderApp();" class="bg-blue-600 text-white px-8 py-3 rounded-lg font-bold shadow-lg hover:bg-blue-700 flex items-center gap-2">
+                            <i data-lucide="upload-cloud" class="w-5 h-5"></i> ${t('upload_csv')}
+                        </button>
+                        <button onclick="STATE.bulk.step=2; renderApp();" class="bg-slate-100 text-slate-700 px-8 py-3 rounded-lg font-bold hover:bg-slate-200">
+                            ${t('manual_entry')}
+                        </button>
+                    </div>
+                `;
+                container.appendChild(content);
+            } 
+            else if(step === 2) {
+                // Grouping Logic Simulation
+                const groups = {};
+                STATE.bulk.invoices.forEach(inv => {
+                    if(!groups[inv.vendorId]) groups[inv.vendorId] = { vendor: STATE.vendors.find(v=>v.id==inv.vendorId), invoices: [], total: 0 };
+                    groups[inv.vendorId].invoices.push(inv);
+                    groups[inv.vendorId].total += inv.amount;
+                });
+
+                const content = document.createElement('div');
+                content.className = "flex-1 overflow-y-auto";
+                
+                let listHtml = '';
+                Object.values(groups).forEach((g, idx) => {
+                    listHtml += `
+                        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex justify-between items-center mb-4">
+                            <div class="flex items-center gap-4">
+                                <div class="bg-blue-50 p-3 rounded-lg text-blue-700 font-bold text-xl">${idx+1}</div>
+                                <div>
+                                    <h3 class="font-bold text-lg text-slate-800">${g.vendor.name}</h3>
+                                    <p class="text-xs text-slate-500">${g.vendor.bank}</p>
+                                    <div class="flex gap-2 mt-1">
+                                        ${g.invoices.map(i => `<span class="text-[10px] bg-slate-100 px-2 py-1 rounded border border-slate-200 text-slate-600">${i.invNo}</span>`).join('')}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-2xl font-bold text-green-600">₹${g.total.toLocaleString('en-IN')}</p>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                content.innerHTML = `
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2"><i data-lucide="brain" class="w-5 h-5 text-purple-500"></i> ${t('auto_group')}</h2>
+                        <button onclick="STATE.bulk.step=3; renderApp();" class="bg-green-600 text-white px-6 py-2 rounded-lg font-bold shadow hover:bg-green-700 flex items-center gap-2">
+                            ${t('generate_all')} <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                    <div>${listHtml}</div>
+                `;
+                container.appendChild(content);
+            }
+            else {
+                // Step 3
+                const content = document.createElement('div');
+                content.className = "flex flex-1 items-center justify-center bg-slate-600 rounded-xl p-8 text-center";
+                content.innerHTML = `
+                    <div class="bg-white p-8 rounded-lg shadow-2xl">
+                        <i data-lucide="check-circle" class="w-16 h-16 text-green-500 mx-auto mb-4"></i>
+                        <h2 class="text-2xl font-bold text-slate-800">Batch Ready!</h2>
+                        <p class="text-slate-500 mb-6">4 Cheques & Advices generated successfully.</p>
+                        <div class="flex gap-4 justify-center">
+                            <button onclick="alert('Printing 4 Cheques...');" class="bg-blue-600 text-white px-6 py-2 rounded font-bold">Print Cheques</button>
+                            <button onclick="setTab('register')" class="bg-slate-200 text-slate-800 px-6 py-2 rounded font-bold">Go to Register</button>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(content);
+            }
+        }
+
+        function renderRegister(container) {
+            let rows = '';
+            STATE.registerData.forEach(row => {
+                rows += `
+                    <tr class="hover:bg-blue-50 transition-colors border-b border-slate-100">
+                        <td class="p-4 font-mono text-slate-500">${row.date}</td>
+                        <td class="p-4 font-mono font-bold text-slate-800">${row.id}</td>
+                        <td class="p-4 font-medium">${row.party}</td>
+                        <td class="p-4 text-xs font-bold text-slate-500 uppercase">${row.bank}</td>
+                        <td class="p-4 text-right font-mono font-bold text-slate-800">₹${row.amount.toLocaleString('en-IN')}</td>
+                        <td class="p-4 text-center"><span class="bg-green-100 text-green-800 px-2 py-0.5 rounded text-[10px] font-bold uppercase border border-green-200">Generated</span></td>
+                    </tr>
+                `;
+            });
+
+            container.innerHTML = `
+                <div class="h-full bg-white rounded-xl shadow border border-slate-200 p-6 overflow-hidden flex flex-col">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2"><i data-lucide="list" class="w-5 h-5 text-blue-600"></i> ${t('reg_header')}</h2>
+                        <div class="bg-green-50 text-green-700 px-3 py-1 rounded text-xs font-bold border border-green-200 flex items-center gap-2">
+                            <i data-lucide="brain" class="w-3 h-3"></i> ${t('tip_register')}
+                        </div>
+                    </div>
+                    <div class="overflow-y-auto flex-1">
+                        <table class="w-full text-left text-sm">
+                            <thead class="bg-slate-50 text-slate-600 border-b border-slate-200 sticky top-0">
+                                <tr>
+                                    <th class="p-4 font-bold uppercase text-xs">Date</th>
+                                    <th class="p-4 font-bold uppercase text-xs">Chq No</th>
+                                    <th class="p-4 font-bold uppercase text-xs">Party</th>
+                                    <th class="p-4 font-bold uppercase text-xs">Bank</th>
+                                    <th class="p-4 font-bold uppercase text-xs text-right">${t('reg_amount')}</th>
+                                    <th class="p-4 font-bold uppercase text-xs text-center">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>${rows}</tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderParty(container) {
+            let rows = '';
+            STATE.vendors.forEach(p => {
+                rows += `
+                    <tr class="border-b hover:bg-slate-50">
+                        <td class="p-4 font-bold">${p.name}</td>
+                        <td class="p-4 font-mono text-slate-600 text-xs">${p.acc}<br><span class="text-[10px] text-slate-400">${p.bank}</span></td>
+                        <td class="p-4 text-slate-500 text-xs"><span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded">${p.ledger}</span></td>
+                    </tr>
+                `;
+            });
+            container.innerHTML = `
+                <div class="bg-white rounded-xl shadow border border-slate-200 h-full p-6">
+                    <div class="flex justify-between mb-6">
+                        <h2 class="text-xl font-bold">${t('partyMaster')}</h2>
+                        <button class="bg-green-600 text-white px-4 py-2 rounded-lg font-bold text-sm flex items-center gap-2 hover:bg-green-700">
+                            <i data-lucide="users" class="w-4 h-4"></i> ${t('add_vendor')}
+                        </button>
+                    </div>
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-slate-50 border-b">
+                            <tr><th class="p-4">${t('vendor_select')}</th><th class="p-4">${t('bank_details')}</th><th class="p-4">${t('auto_ledger')}</th></tr>
+                        </thead>
+                        <tbody>${rows}</tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        function renderBulkAdvice(container) {
+            container.innerHTML = `
+                <div class="h-full flex flex-col bg-slate-50 rounded-xl overflow-y-auto">
+                    <div class="flex justify-between items-center mb-6">
+                        <div>
+                            <h2 class="text-xl font-bold text-slate-800">${t('payAdvice')} (Batch Mode)</h2>
+                            <p class="text-sm text-slate-500">Auto-generated for 4 Vendors</p>
+                        </div>
+                        <button class="bg-slate-800 text-white px-4 py-2 rounded shadow flex gap-2 items-center text-sm font-bold">
+                            <i data-lucide="download" class="w-4 h-4"></i> ${t('download_all')}
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <div class="bg-white shadow-lg p-8 text-xs border border-slate-200">
+                            <div class="border-b-2 border-blue-900 pb-2 mb-4 flex justify-between font-bold text-lg text-slate-800">
+                                <span>UTKAL POLYWEAVE</span><span>#PA-OCT-001</span>
+                            </div>
+                            <p class="font-bold mb-2">TO: Ganpati Plastic</p>
+                            <table class="w-full border collapse mb-2">
+                                <tr class="bg-slate-100"><th class="border p-1 text-left">Bill</th><th class="border p-1 text-right">Amt</th></tr>
+                                <tr><td class="border p-1">GP/001</td><td class="border p-1 text-right">1,25,000</td></tr>
+                                <tr><td class="border p-1">GP/004</td><td class="border p-1 text-right">50,000</td></tr>
+                                <tr class="font-bold"><td class="border p-1 text-right">Total</td><td class="border p-1 text-right">1,75,000</td></tr>
+                            </table>
+                        </div>
+                        <div class="bg-white shadow-lg p-8 text-xs border border-slate-200 opacity-75">
+                            <div class="border-b-2 border-blue-900 pb-2 mb-4 flex justify-between font-bold text-lg text-slate-800">
+                                <span>UTKAL POLYWEAVE</span><span>#PA-OCT-002</span>
+                            </div>
+                            <p class="font-bold mb-2">TO: Vakrangee Packaging</p>
+                            <table class="w-full border collapse mb-2">
+                                <tr class="bg-slate-100"><th class="border p-1 text-left">Bill</th><th class="border p-1 text-right">Amt</th></tr>
+                                <tr><td class="border p-1">VAK/992</td><td class="border p-1 text-right">2,10,000</td></tr>
+                                <tr class="font-bold"><td class="border p-1 text-right">Total</td><td class="border p-1 text-right">2,10,000</td></tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- NEW RESTORED SCREENS ---
+
+        function renderWorkflow(container) {
+            container.innerHTML = `
+                <div class="p-8 h-full overflow-y-auto flex flex-col items-center">
+                    <h2 class="text-2xl font-bold text-slate-800 mb-8">${t('workflow')}</h2>
+                    <div class="flex flex-col gap-6 max-w-2xl w-full">
+                        <div class="flex items-center gap-4 bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+                            <div class="bg-blue-100 p-3 rounded-full text-blue-600"><i data-lucide="globe" class="w-6 h-6"></i></div>
+                            <div>
+                                <h3 class="font-bold text-slate-800">Step 1: Select Language</h3>
+                                <p class="text-sm text-slate-500">English / Hindi / Bengali / Odia</p>
+                            </div>
+                        </div>
+                        <div class="flex justify-center"><i data-lucide="arrow-down" class="w-6 h-6 text-slate-300"></i></div>
+                        <div class="flex items-center gap-4 bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+                            <div class="bg-green-100 p-3 rounded-full text-green-600"><i data-lucide="users" class="w-6 h-6"></i></div>
+                            <div>
+                                <h3 class="font-bold text-slate-800">Step 2: Add Supplier</h3>
+                                <p class="text-sm text-slate-500">One Time Entry</p>
+                            </div>
+                        </div>
+                        <div class="flex justify-center"><i data-lucide="arrow-down" class="w-6 h-6 text-slate-300"></i></div>
+                        <div class="flex items-center gap-4 bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+                            <div class="bg-purple-100 p-3 rounded-full text-purple-600"><i data-lucide="zap" class="w-6 h-6"></i></div>
+                            <div>
+                                <h3 class="font-bold text-slate-800">Step 3: Generate Cheque</h3>
+                                <p class="text-sm text-slate-500">Bulk or Quick Mode</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderSystemInfo(container) {
+            container.innerHTML = `
+                <div class="p-8 h-full overflow-y-auto flex items-center justify-center">
+                    <div class="bg-slate-800 text-white p-8 rounded-2xl shadow-2xl max-w-3xl w-full">
+                        <div class="flex items-center gap-4 mb-6 border-b border-slate-600 pb-6">
+                            <i data-lucide="shield-check" class="w-12 h-12 text-green-400"></i>
+                            <div>
+                                <h2 class="text-2xl font-bold">${t('systemInfo')}</h2>
+                                <p class="text-slate-400">Utkal Polyweave Industries Pvt. Ltd. (Licensed)</p>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div class="space-y-4">
+                                <div class="flex items-start gap-3">
+                                    <i data-lucide="server" class="w-5 h-5 text-blue-400 mt-1"></i>
+                                    <div>
+                                        <h3 class="font-bold text-lg">${t('sys_offline')}</h3>
+                                        <p class="text-sm text-slate-400 mt-1">100% Local Execution</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start gap-3">
+                                    <i data-lucide="lock" class="w-5 h-5 text-blue-400 mt-1"></i>
+                                    <div>
+                                        <h3 class="font-bold text-lg">${t('sys_secure')}</h3>
+                                        <p class="text-sm text-slate-400 mt-1">${t('sys_desc')}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bg-slate-700 p-4 rounded-xl text-sm space-y-2">
+                                <h4 class="font-bold text-slate-300 uppercase text-xs mb-2">Specs</h4>
+                                <div class="flex justify-between border-b border-slate-600 pb-1"><span>Ver:</span> <span class="font-mono">v3.0 Ent</span></div>
+                                <div class="flex justify-between border-b border-slate-600 pb-1"><span>DB:</span> <span class="font-mono">SQLite</span></div>
+                                <div class="flex justify-between"><span>Enc:</span> <span class="font-mono text-green-400">AES-256</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderPlans(container) {
+            container.innerHTML = `
+                <div class="p-8 h-full overflow-y-auto">
+                    <h2 class="text-2xl font-bold text-slate-800 mb-6 text-center">${t('plans')}</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+                        <!-- Free -->
+                        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm opacity-60 hover:opacity-100 transition-opacity">
+                            <h3 class="text-xl font-bold text-slate-600">${t('free')}</h3>
+                            <p class="text-3xl font-bold my-4">₹0</p>
+                            <ul class="space-y-3 text-sm text-slate-600 mb-6">
+                                <li class="flex gap-2 text-red-500"><i data-lucide="x" class="w-4 h-4"></i> Limited Features</li>
+                                <li class="flex gap-2"><i data-lucide="check-circle" class="w-4 h-4"></i> 5 Vendors</li>
+                            </ul>
+                            <button class="w-full py-2 border border-slate-300 rounded-lg font-bold text-slate-500 cursor-not-allowed">Current</button>
+                        </div>
+                        <!-- Standard -->
+                        <div class="bg-white p-8 rounded-xl border-2 border-blue-600 shadow-2xl relative transform scale-105 z-10">
+                            <div class="absolute top-0 left-1/2 -translate-x-1/2 bg-blue-600 text-white px-6 py-1 rounded-b-lg text-xs font-bold uppercase">Popular</div>
+                            <h3 class="text-2xl font-bold text-blue-800 mt-2">${t('std')}</h3>
+                            <p class="text-4xl font-bold my-4 text-blue-600">₹22,000</p>
+                            <ul class="space-y-3 text-sm text-slate-700 mb-8">
+                                <li class="flex gap-2 text-green-600"><i data-lucide="check-circle" class="w-4 h-4"></i> Unlimited Cheques</li>
+                                <li class="flex gap-2 text-green-600"><i data-lucide="check-circle" class="w-4 h-4"></i> Payment Advice</li>
+                            </ul>
+                            <button class="w-full py-3 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 shadow-lg text-lg">${t('buy')}</button>
+                        </div>
+                        <!-- Enterprise -->
+                        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                            <h3 class="text-xl font-bold text-slate-800">${t('ent')}</h3>
+                            <p class="text-3xl font-bold my-4">${t('price_ent')}</p>
+                            <ul class="space-y-3 text-sm text-slate-600 mb-6">
+                                <li class="flex gap-2 text-green-600"><i data-lucide="check-circle" class="w-4 h-4"></i> ${t('ent_feat')}</li>
+                                <li class="flex gap-2 text-green-600"><i data-lucide="check-circle" class="w-4 h-4"></i> Multi-User</li>
+                            </ul>
+                            <button class="w-full py-2 border-2 border-slate-800 rounded-lg font-bold hover:bg-slate-50 text-slate-800">${t('buy')}</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- INTERACTION HANDLERS ---
+        window.updateQC = (field, value) => {
+            STATE.qc[field] = value;
+            STATE.qc.generated = false; // Reset generation on edit
+            renderApp();
+        };
+
+        window.generateQC = () => {
+            if(!STATE.qc.partyId || !STATE.qc.amount) return alert("Please fill fields");
+            STATE.qc.generated = true;
+            renderApp();
+        };
+
+        window.saveToRegister = () => {
+            const party = STATE.vendors.find(v => v.id == STATE.qc.partyId);
+            const entry = {
+                id: BANK_MEMORY[STATE.qc.bank].lastCheque + 1,
+                date: STATE.qc.date,
+                party: party.name,
+                amount: Number(STATE.qc.amount),
+                bank: STATE.qc.bank,
+                status: 'Issued',
+                notes: 'Quick Cheque'
+            };
+            STATE.registerData.unshift(entry);
+            STATE.qc.generated = false;
+            STATE.qc.amount = '';
+            STATE.qc.partyId = '';
+            BANK_MEMORY[STATE.qc.bank].lastCheque++;
+            setTab('register');
+        };
+
+        // --- ONBOARDING LOGIC ---
+        let obStep = 0;
+        const obSteps = [
+            { icon: 'briefcase', titleKey: 'ob1_title', descKey: 'ob1_desc' },
+            { icon: 'layers', titleKey: 'ob2_title', descKey: 'ob2_desc' },
+            { icon: 'zap', titleKey: 'ob3_title', descKey: 'ob3_desc' },
+            { icon: 'brain', titleKey: 'ob4_title', descKey: 'ob4_desc' }
+        ];
+
+        function showOnboarding() {
+            document.getElementById('onboarding-modal').classList.remove('hidden');
+            renderOnboardingStep();
+        }
+
+        function renderOnboardingStep() {
+            const s = obSteps[obStep];
+            document.getElementById('ob-icon-container').innerHTML = `<i data-lucide="${s.icon}" class="w-16 h-16"></i>`;
+            document.getElementById('ob-title').innerText = t(s.titleKey);
+            document.getElementById('ob-desc').innerText = t(s.descKey);
+            
+            document.getElementById('ob-prev').classList.toggle('hidden', obStep === 0);
+            const nextBtn = document.getElementById('ob-next');
+            nextBtn.innerHTML = obStep === obSteps.length - 1 ? `${t('start')} <i data-lucide="play-circle" class="w-4 h-4 ml-2 inline"></i>` : `${t('next')} <i data-lucide="chevron-right" class="w-4 h-4 ml-2 inline"></i>`;
+            
+            lucide.createIcons();
+        }
+
+        window.nextStep = () => {
+            if(obStep < obSteps.length - 1) {
+                obStep++;
+                renderOnboardingStep();
+            } else {
+                document.getElementById('onboarding-modal').classList.add('hidden');
+            }
+        };
+
+        window.prevStep = () => {
+            if(obStep > 0) {
+                obStep--;
+                renderOnboardingStep();
+            }
+        };
+
+        // --- INIT ---
+        renderApp();
+        showOnboarding();
+
+    </script>
+</body>
+</html>
